@@ -2,38 +2,28 @@ name: Build Rada OS ISO
 
 on:
   workflow_dispatch:
-    inputs:
-      desktop:
-        description: "Стільниця"
-        type: choice
-        default: plasma
-        options:
-          - plasma
-          - xfce
 
 jobs:
   build:
     runs-on: ubuntu-latest
     timeout-minutes: 180
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
       - name: Free disk space
         run: |
           sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL
-          sudo docker image prune --all --force || true
           df -h /
 
-      - name: Build ISO inside a privileged Debian 12 container
-        env:
-          DESKTOP_FLAG: ${{ inputs.desktop == 'xfce' && '--xfce' || '' }}
+      - name: Build ISO in Debian 12 container
         run: |
           mkdir -p out
           docker run --rm --privileged \
             -v "$PWD":/src -w /src \
-            -e RADA_OUTDIR=/src/out -e RADA_WORKDIR=/var/tmp/rada-build -e DESKTOP_FLAG \
+            -e RADA_OUTDIR=/src/out -e RADA_WORKDIR=/var/tmp/rada-build \
             debian:bookworm \
-            bash -c 'apt-get update && apt-get install -y util-linux ca-certificates && bash build-rada-os.sh --clean $DESKTOP_FLAG'
+            bash -c 'apt-get update && apt-get install -y util-linux ca-certificates && bash build-rada-os.sh --clean --xfce'
           ls -lh out
 
       - name: Upload ISO
