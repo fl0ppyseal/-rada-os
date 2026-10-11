@@ -23,7 +23,7 @@ jobs:
             -v "$PWD":/src -w /src \
             -e RADA_OUTDIR=/src/out -e RADA_WORKDIR=/var/tmp/rada-build \
             debian:bookworm \
-            bash -c 'apt-get update && apt-get install -y util-linux ca-certificates && bash build-rada-os.sh --clean --xfce'
+            bash -c 'apt-get update && apt-get install -y util-linux ca-certificates && bash build-rada-os.sh --clean --xfce --no-backports'
           ls -lh out
 
       - name: Upload ISO
